@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import ru.alfabank.configs.TestConfig;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +37,8 @@ public class ScenarioExecutor {
 
     public ScenarioExecutor() {
         ScenarioData.initialVariables().forEach(variables::put);
+        applyRuntimeOverrides();
+        initializeDynamicVariables();
     }
 
     public void execute(Scenario scenario) {
@@ -59,6 +63,12 @@ public class ScenarioExecutor {
         }
 
         if ("raw".equals(scenario.getBodyMode()) && scenario.getRawBody() != null) {
+            if (!hasHeader(scenario, "content-type")) {
+                req.header("Content-Type", "application/json");
+            }
+            if (!hasHeader(scenario, "accept")) {
+                req.header("Accept", "application/json");
+            }
             req.body(resolveTemplate(scenario.getRawBody()));
         }
 
@@ -69,6 +79,58 @@ public class ScenarioExecutor {
         }
 
         return req.request(scenario.getMethod(), resolvedUrl);
+    }
+
+    private boolean hasHeader(Scenario scenario, String headerName) {
+        return scenario.getHeaders().keySet().stream()
+                .anyMatch(key -> key != null && key.equalsIgnoreCase(headerName));
+    }
+
+    private void applyRuntimeOverrides() {
+        String baseFromConfig = TestConfig.getBaseUrl();
+        if (baseFromConfig != null && !baseFromConfig.isBlank()) {
+            variables.put(
+                    "baseUrl",
+                    baseFromConfig + "/corp-ncins-acc-gateway/secure/corp-ncins-acc-corp-ncins-acc-api"
+            );
+            variables.put(
+                    "tokenUrl",
+                    baseFromConfig + "/mks-gateway/public/auth/realms/corporate/protocol/openid-connect/token"
+            );
+        }
+
+        String baseOverride = System.getProperty("collection.baseUrl");
+        if (baseOverride != null && !baseOverride.isBlank()) {
+            variables.put("baseUrl", baseOverride);
+        }
+        String tokenOverride = System.getProperty("collection.tokenUrl");
+        if (tokenOverride != null && !tokenOverride.isBlank()) {
+            variables.put("tokenUrl", tokenOverride);
+        }
+    }
+
+    private void initializeDynamicVariables() {
+        String suffix = String.valueOf(System.currentTimeMillis());
+        String shortSuffix = suffix.substring(Math.max(0, suffix.length() - 8));
+
+        setIfBlank("accountOwnerId", "TEST_OWNER_ACCOUNT_" + suffix);
+        setIfBlank("propertyOwnerId", "TEST_OWNER_PROPERTY_" + suffix);
+        setIfBlank("employeeHealthOwnerId", "TEST_OWNER_EH_" + suffix);
+
+        setIfBlank("accountContractNumber", "Z6922/888/ABR" + shortSuffix + "/6");
+        setIfBlank("propertyGeneratedContractNumber", "Z6922/888/ABR" + shortSuffix + "1/6");
+        setIfBlank("employeeHealthGeneratedContractNumber", "Z6922/888/ABR" + shortSuffix + "2/6");
+        setIfBlank("contractNumber", variables.get("accountContractNumber"));
+
+        String uuidPart = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+        variables.put("invalidAccountContractNumber", "Z6922/888/ABR" + uuidPart + "/6");
+    }
+
+    private void setIfBlank(String key, String value) {
+        String current = variables.get(key);
+        if (current == null || current.isBlank()) {
+            variables.put(key, value);
+        }
     }
 
     private void runPreRequest(List<String> lines) {
