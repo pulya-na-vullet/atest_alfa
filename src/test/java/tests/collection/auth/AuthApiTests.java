@@ -12,7 +12,7 @@ import tests.collection.core.BaseSectionTest;
 
 @Epic("Strahovanie Uchet")
 @Feature("Avtorizatsiya")
-@Story("Postman 1:1 migration")
+@Story("Postman scoped migration")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Order(1)
 public class AuthApiTests extends BaseSectionTest {
@@ -34,28 +34,28 @@ public class AuthApiTests extends BaseSectionTest {
     @Test
     @Order(3)
     @DisplayName("Poluchenie tokena - 400 nevernyy client_id")
-    void poluchenie_tokena_400_nevernyi_client_id() {
+    void poluchenie_tokena_400_nevernyy_client_id() {
         run("case_03");
     }
 
     @Test
     @Order(4)
     @DisplayName("Poluchenie tokena - 400 nevernyy grant_type")
-    void poluchenie_tokena_400_nevernyi_grant_type() {
+    void poluchenie_tokena_400_nevernyy_grant_type() {
         run("case_04");
     }
 
     @Test
     @Order(5)
     @DisplayName("Poluchenie strahovoy programmy - 403 without token")
-    void poluchenie_strahovoi_programmy_403_without_token() {
+    void poluchenie_strahovoy_programmy_403_without_token() {
         run("case_05");
     }
 
     @Test
     @Order(6)
     @DisplayName("Poluchenie strahovoy programmy - 401 invalid token")
-    void poluchenie_strahovoi_programmy_401_invalid_token() {
+    void poluchenie_strahovoy_programmy_401_invalid_token() {
         run("case_06");
     }
 
