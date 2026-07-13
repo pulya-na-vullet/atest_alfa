@@ -67,6 +67,18 @@ public class InsuranceProgramsClient {
                 .response();
     }
 
+    public Response getProgramByIdWithoutToken(String programId) {
+        return given()
+                .baseUri(TestConfig.getBaseUrl())
+                .headers(AccountingHeaders.defaultHeaders())
+                .accept(ContentType.JSON)
+                .when()
+                .get(Endpoints.INSURANCE_PROGRAMS + "/" + programId)
+                .then()
+                .extract()
+                .response();
+    }
+
     public Response updateProgram(String token, String programId, InsuranceProgramRequest body) {
         return given()
                 .baseUri(TestConfig.getBaseUrl())

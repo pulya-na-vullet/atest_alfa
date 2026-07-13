@@ -10,12 +10,9 @@ import org.junit.jupiter.api.Test;
 import ru.alfabank.auth.clients.AuthClient;
 import ru.alfabank.auth.dto.TokenErrorResponse;
 import ru.alfabank.auth.specifications.AuthSpecifications;
-import ru.alfabank.configs.Endpoints;
 import ru.alfabank.configs.TestConfig;
 import ru.alfabank.programs.clients.InsuranceProgramsClient;
 import tests.BaseApiTest;
-
-import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -83,16 +80,7 @@ public class AuthApiTests extends BaseApiTest {
     @DisplayName("Poluchenie strahovoy programmy - 403 without token")
     @Description("Proverka otkaza pri otsutstvii zagolovka Authorization.")
     void getProgram_withoutToken_returns403() {
-        Response response = given()
-                .baseUri(TestConfig.getBaseUrl())
-                .accept("application/json")
-                .contentType("application/json")
-                .when()
-                .get(Endpoints.INSURANCE_PROGRAMS + "/2")
-                .then()
-                .extract()
-                .response();
-
+        Response response = insuranceProgramsClient.getProgramByIdWithoutToken("2");
         assertEquals(403, response.getStatusCode());
     }
 
