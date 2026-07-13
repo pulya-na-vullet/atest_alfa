@@ -8,7 +8,7 @@ public abstract class BaseApiTest {
     protected static String token;
 
     @BeforeAll
-    static void setUp() {
+    protected static void setUp() {
         token = new AuthClient().getToken();
     }
 }
