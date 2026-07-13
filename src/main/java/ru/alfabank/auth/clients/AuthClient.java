@@ -11,7 +11,14 @@ import static io.restassured.RestAssured.given;
 public class AuthClient {
 
     public String getToken() {
-        return requestToken("client_credentials", TestConfig.getClientId(), TestConfig.getClientSecret())
+        return given()
+                .baseUri(TestConfig.getBaseUrl())
+                .contentType(ContentType.URLENC)
+                .formParam("grant_type", "client_credentials")
+                .formParam("client_id", TestConfig.getClientId())
+                .formParam("client_secret", TestConfig.getClientSecret())
+                .when()
+                .post(Endpoints.TOKEN)
                 .then()
                 .statusCode(200)
                 .extract()
