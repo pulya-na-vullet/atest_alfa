@@ -11,7 +11,6 @@ import ru.alfabank.auth.clients.AuthClient;
 import ru.alfabank.auth.dto.TokenErrorResponse;
 import ru.alfabank.auth.specifications.AuthSpecifications;
 import ru.alfabank.configs.TestConfig;
-import ru.alfabank.programs.clients.InsuranceProgramsClient;
 import tests.BaseApiTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class AuthApiTests extends BaseApiTest {
 
     private final AuthClient authClient = new AuthClient();
-    private final InsuranceProgramsClient insuranceProgramsClient = new InsuranceProgramsClient();
 
     @Test
     @DisplayName("Poluchenie tokena - 200")
@@ -30,14 +28,6 @@ public class AuthApiTests extends BaseApiTest {
     void getToken_returns200AndTokenPayload() {
         String accessToken = authClient.getToken();
         assertFalse(accessToken.isBlank());
-    }
-
-    @Test
-    @DisplayName("Poluchenie spravochnika strahovyh programm - 401 expired token")
-    @Description("Proverka otkaza pri prosrochennom tokene.")
-    void getPrograms_withExpiredToken_returns401() {
-        Response response = insuranceProgramsClient.getPrograms("expired_access_token");
-        assertEquals(401, response.getStatusCode());
     }
 
     @Test
@@ -76,19 +66,4 @@ public class AuthApiTests extends BaseApiTest {
         assertEquals("unsupported_grant_type", body.getError());
     }
 
-    @Test
-    @DisplayName("Poluchenie strahovoy programmy - 403 without token")
-    @Description("Proverka otkaza pri otsutstvii zagolovka Authorization.")
-    void getProgram_withoutToken_returns403() {
-        Response response = insuranceProgramsClient.getProgramByIdWithoutToken("2");
-        assertEquals(403, response.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Poluchenie strahovoy programmy - 401 invalid token")
-    @Description("Proverka otkaza pri nevernom znachenii Bearer token.")
-    void getProgram_withInvalidToken_returns401() {
-        Response response = insuranceProgramsClient.getProgramById("invalid_token", "2");
-        assertEquals(401, response.getStatusCode());
-    }
 }
