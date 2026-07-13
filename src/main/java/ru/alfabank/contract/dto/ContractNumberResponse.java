@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ContractResponse {
-
+public class ContractNumberResponse {
     private String contractNumber;
-    private Owner owner;
 }
