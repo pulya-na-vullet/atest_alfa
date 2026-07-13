@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'io.qameta.allure' version '3.1.0'
+    id 'io.freefair.lombok' version '8.6'
+}
+
+repositories {
+    maven {
+        url "https://binary.alfabank.ru/artifactory/public"
+        allowInsecureProtocol = true
+    }
+    maven {
+        url "https://binary.alfabank.ru/artifactory/thirdparty"
+        allowInsecureProtocol = true
+    }
+    maven {
+        url "https://binary.alfabank.ru/artifactory/Autotests"
+        allowInsecureProtocol = true
+    }
+}
+
+
+group = 'ru.alfabank'
+version = '1.0-SNAPSHOT'
+
+dependencies {
+    implementation 'io.rest-assured:rest-assured:5.5.6'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
+
+    testImplementation 'io.rest-assured:rest-assured:5.5.6'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'io.rest-assured:json-path:5.3.2'
+    testImplementation 'io.rest-assured:xml-path:5.3.2'
+
+    //allure
+    testImplementation 'io.qameta.allure:allure-junit5:2.27.0'
+    testImplementation 'io.qameta.allure:allure-java-commons:2.27.0'
+
+    //jackson
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty "file.encoding", "UTF-8"
+
+    testLogging {
+        events "PASSED", "SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR"
+        showStandardStreams = true
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+        exceptionFormat = 'full'
+    }
+
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
